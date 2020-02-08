@@ -1,9 +1,9 @@
-import typing as t
-
 from marshmallow import Schema, fields
 from marshmallow import ValidationError
 
-from api import config
+import typing as t
+import json
+
 
 class InvalidInputError(Exception):
     """Invalid model input."""
@@ -112,11 +112,12 @@ def _filter_error_rows(errors: dict,
     return validated_input
 
 
-def validate_inputs(input_data):
+def validate_inputs(input_json):
     """Check prediction inputs against schema."""
 
     # set many=True to allow passing in a list
     schema = HouseDataRequestSchema(strict=True, many=True)
+    input_data = json.loads(input_json)
 
     # convert syntax error field names (beginning with numbers)
     for dict in input_data:
@@ -146,8 +147,3 @@ def validate_inputs(input_data):
         validated_input = input_data
 
     return validated_input, errors
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in config.ALLOWED_EXTENSIONS
